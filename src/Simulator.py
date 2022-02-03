@@ -117,6 +117,34 @@ class Simulator(object):
         ax_map.set_ylim([0, self.map_height])
         plt.show(block=False)
 
+    def plot_multi_agent_path(self, path_many: list, agent_position: list, targets_position: list):
+        fig_map, ax_map = plt.subplots(1, 1)
+
+        cmap = matplotlib.colors.ListedColormap(['white','black'])
+        ax_map.pcolor(self.map_array, cmap=cmap, edgecolors='k')
+        ax_map.plot(self.map_width*self.map_height, self.map_width*self.map_height, 'ks', label="Obstacle")
+
+        ax_map.scatter(agent_position[0]+0.5, agent_position[1]+0.5, color = 'b',marker="*", label="start")
+        if len(agent_position) > 1:
+            for idx_agent in range(1, int(len(agent_position)/2)):
+                ax_map.scatter(agent_position[idx_agent*2]+0.5, agent_position[idx_agent*2+1]+0.5, color = 'b',marker="*")
+        ax_map.scatter(targets_position[0]+0.5, targets_position[1]+0.5, color = 'r',label="target")
+        if len(targets_position) > 1:
+            for idx_target in range(1, int(len(targets_position)/2)):
+                ax_map.scatter(targets_position[idx_target*2]+0.5, targets_position[idx_target*2+1]+0.5, color = 'r')
+
+        for idx_path in range(0, len(path_many)):
+            ax_map.plot(list(map(lambda x:x+0.5, path_many[idx_path][0::2])),
+                list(map(lambda x:x+0.5, path_many[idx_path][1::2])))
+
+        ax_map.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+        ax_map.set_xlabel("x")
+        ax_map.set_ylabel("y")
+        ax_map.set_aspect('equal')
+        ax_map.set_xlim([0, self.map_width])
+        ax_map.set_ylim([0, self.map_height])
+        plt.show(block=False)
+
     def generate_start_and_goals(self, num_targets: int):
         start = [randint(5,self.map_width-1), randint(5,self.map_height-1)]
         while self.map_array[start[1]][start[0]] != self.value_non_obs:
@@ -130,3 +158,20 @@ class Simulator(object):
                 # print("Target is inside an obstacle. Re-generate a new target.")
             targets.extend(goal)
         return start, targets
+
+    def generate_multi_agent_and_goals(self, num_agents: int,num_targets: int):
+        agent = list()
+        for idx in range(0, num_agents):
+            start = [randint(0,self.map_width-1), randint(0,self.map_height-1)]
+            while self.map_array[start[1]][start[0]] != self.value_non_obs:
+                start = [randint(0,self.map_width-1), randint(0,self.map_height-1)]
+                # print("Start is inside an obstacle. Re-generate a new start.")
+            agent.extend(start)
+        targets = list()
+        for idx in range(0, num_targets):
+            goal = [randint(20,self.map_width-1), randint(20,self.map_height-1)]
+            while self.map_array[goal[1]][goal[0]] != self.value_non_obs:
+                goal = [randint(20,self.map_width-1), randint(20,self.map_height-1)]
+                # print("Target is inside an obstacle. Re-generate a new target.")
+            targets.extend(goal)
+        return agent, targets
