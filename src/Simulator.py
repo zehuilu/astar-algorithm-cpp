@@ -5,7 +5,6 @@ sys.path.append(os.getcwd()+'/src')
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 from random import randint
 
 
@@ -62,6 +61,37 @@ class Simulator(object):
                 self.map_array[obs_left_bottom_corner[1]:obs_left_bottom_corner[1]+self.size_obs_height][:, obs_left_bottom_corner[0]:obs_left_bottom_corner[0]+self.size_obs_width] \
                     = self.value_obs * np.ones(obs_mat.shape)
 
+    def generate_agents_and_targets(self, num_agents: int, num_targets: int):
+        """
+        Randomly generate agents and targets which don't collide with obstacles.
+        """
+        agents = list()
+        for _ in range(num_agents):
+            start = [randint(1, self.map_width-1), randint(1, self.map_width-1)]
+            while self.map_array[start[1]][start[0]] != self.value_non_obs:
+                start = [randint(1, self.map_width-1), randint(1, self.map_width-1)]
+            agents.extend(start)
+        
+        targets = list()
+        for _ in range(num_targets):
+            goal = [randint(1, self.map_width-1), randint(1, self.map_width-1)]
+            while (self.map_array[goal[1]][goal[0]] != self.value_non_obs) or (self.check_target_collide_agents(goal, agents)):
+                goal = [randint(1, self.map_width-1), randint(1, self.map_width-1)]
+            targets.extend(goal)
+
+        return agents, targets
+
+    def check_target_collide_agents(self, target_position: list, agent_positions: list):
+        """
+        Check if a target collides with all the agents.
+
+        Return True if a collision exists.
+        """
+        collision_flag = False
+        for idx in range(0, len(agent_positions), 2):
+            collision_flag = collision_flag or (target_position[0] == agent_positions[idx]) and (target_position[1] == agent_positions[idx+1])
+        return collision_flag
+
     def plot_single_path(self, *arguments):
         """
         Simulator.visualize(path) # plot a path
@@ -73,7 +103,7 @@ class Simulator(object):
             fig_map, ax_map = plt.subplots(1, 1)
             
             cmap = matplotlib.colors.ListedColormap(['white','black'])
-            ax_map.pcolor(self.map_array, cmap=cmap, edgecolors='k')
+            ax_map.pcolormesh(self.map_array, cmap=cmap, edgecolors='none')
 
             ax_map.scatter(arguments[0][0]+0.5, arguments[0][1]+0.5, label="start")
             ax_map.scatter(arguments[0][-2]+0.5, arguments[0][-1]+0.5, label="goal")
@@ -99,7 +129,7 @@ class Simulator(object):
         fig_map, ax_map = plt.subplots(1, 1)
 
         cmap = matplotlib.colors.ListedColormap(['white','black'])
-        ax_map.pcolor(self.map_array, cmap=cmap, edgecolors='k')
+        ax_map.pcolormesh(self.map_array, cmap=cmap, edgecolors='none')
 
         ax_map.scatter(agent_position[0]+0.5, agent_position[1]+0.5, label="start")
         for idx_target in range(0, int(len(targets_position)/2)):
@@ -121,7 +151,7 @@ class Simulator(object):
         fig_map, ax_map = plt.subplots(1, 1)
 
         cmap = matplotlib.colors.ListedColormap(['white','black'])
-        ax_map.pcolor(self.map_array, cmap=cmap, edgecolors='k')
+        ax_map.pcolormesh(self.map_array, cmap=cmap, edgecolors='none')
         ax_map.plot(self.map_width*self.map_height, self.map_width*self.map_height, 'ks', label="Obstacle")
 
         ax_map.scatter(agent_position[0]+0.5, agent_position[1]+0.5, color = 'b',marker="*", label="start")
@@ -144,34 +174,3 @@ class Simulator(object):
         ax_map.set_xlim([0, self.map_width])
         ax_map.set_ylim([0, self.map_height])
         plt.show(block=False)
-
-    def generate_start_and_goals(self, num_targets: int):
-        start = [randint(5,self.map_width-1), randint(5,self.map_height-1)]
-        while self.map_array[start[1]][start[0]] != self.value_non_obs:
-            start = [randint(5,self.map_width-1), randint(5,self.map_height-1)]
-            # print("Start is inside an obstacle. Re-generate a new start.")
-        targets = list()
-        for idx in range(0, num_targets):
-            goal = [randint(20,self.map_width-1), randint(20,self.map_height-1)]
-            while self.map_array[goal[1]][goal[0]] != self.value_non_obs:
-                goal = [randint(20,self.map_width-1), randint(20,self.map_height-1)]
-                # print("Target is inside an obstacle. Re-generate a new target.")
-            targets.extend(goal)
-        return start, targets
-
-    def generate_multi_agent_and_goals(self, num_agents: int,num_targets: int):
-        agent = list()
-        for idx in range(0, num_agents):
-            start = [randint(0,self.map_width-1), randint(0,self.map_height-1)]
-            while self.map_array[start[1]][start[0]] != self.value_non_obs:
-                start = [randint(0,self.map_width-1), randint(0,self.map_height-1)]
-                # print("Start is inside an obstacle. Re-generate a new start.")
-            agent.extend(start)
-        targets = list()
-        for idx in range(0, num_targets):
-            goal = [randint(20,self.map_width-1), randint(20,self.map_height-1)]
-            while self.map_array[goal[1]][goal[0]] != self.value_non_obs:
-                goal = [randint(20,self.map_width-1), randint(20,self.map_height-1)]
-                # print("Target is inside an obstacle. Re-generate a new target.")
-            targets.extend(goal)
-        return agent, targets

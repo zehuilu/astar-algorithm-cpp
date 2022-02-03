@@ -3,6 +3,7 @@
 #include <chrono>
 #include "MapInfo.h"
 #include "find_path.h"
+#include "smooth_path.h"
 
 
 // Main
@@ -53,16 +54,15 @@ int main()
     auto start_time = std::chrono::high_resolution_clock::now();
 
 
-    auto [path_short, steps_used] = find_path(start, end, Map);
-
+    auto [path, distance] = find_path(start, end, Map);
 
     auto stop_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time);
     std::cout << "Time used [microseconds]:" << duration.count() << std::endl;
 
-    std::cout << "This is the short path. Steps used:" << steps_used << std::endl;
-    for(long unsigned int i=0; i<path_short.size(); i=i+2)
-        std::cout << path_short[i] << "," << path_short[i+1] << std::endl;
+    std::cout << "This is the path. Distance used:" << distance << std::endl;
+    for(size_t i=0; i<path.size(); i=i+2)
+        std::cout << path[i] << "," << path[i+1] << std::endl;
 
     return 0;
 }

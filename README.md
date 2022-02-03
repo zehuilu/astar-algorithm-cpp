@@ -10,7 +10,8 @@ Zehui
 This repo has been tested with:
 * GCC 10.2.0, CMake 3.16.3, Ubuntu 20.04.2 LTS
 * GCC 9.3.0, CMake 3.16.3, Ubuntu 20.04.1 LTS
-* Clang 12.0.0.0, CMake 3.18.3, macOS 10.15.7
+* Clang 13.0.0, CMake 3.22.1, macOS 11.4
+* Clang 12.0.0, CMake 3.18.3, macOS 10.15.7
 
 Dependencies
 ============
@@ -38,22 +39,16 @@ $ make
 Usage
 =====
 
-For C++, the main file is `src/main_sing_path.cpp`.
+For C++, the usage is shown in `src/main_sing_path.cpp`.
 ```
 $ cd <MAIN_DIRECTORY>
 $ build/main_single
 ```
 
-For Python, the main file is `test/test_AStarPython.py`.
+For Python, the usage is shown in `example/run_PathFind.py`.
 ```
 $ cd <MAIN_DIRECTORY>
-$ python3 test/test_AStarPython.py
-```
-
-Or try `test/solve_plot.py`.
-```
-$ cd <MAIN_DIRECTORY>
-$ python3 test/solve_plot.py
+$ python3 example/run_PathFind.py
 ```
 
 
@@ -62,20 +57,20 @@ Example
 
 **Python**
 
-To call the A Star solver in Python, a simple example is shown below. More details are in `test/solve_plot.py` and `test/test_AStarPython.py`.
+To call A* Solver in Python, a simple example is shown below. More details are in `example/run_PathFind.py`.
 
 ```python
 import AStarPython
 map_width = 20
 map_height = 20
 # world_map is a 1D list (row-major), 0 means no obstacles, 255 means blocked by obstacles
-start = [0, 0] # coordinates for start
-goal = [35, 18] # coordinates for goal
-# solve it
-path_short, steps_used = AStarPython.FindPath(start, end, world_map, Simulator.map_width, Simulator.map_height)
+start = [0, 0] # start position is a list of intergers which indicates the position [px, py]
+goal = [35, 18] # goal position
+# solve
+path, distance = AStarPython.FindPath(start, end, world_map, Simulator.map_width, Simulator.map_height)
 ```
 
-Run `test/solve_plot.py`, the result is shown below. Time used is 2.183 ms.
+Run `example/run_PathFind.py`, the result is shown below. Time used is 0.362 ms.
 ![single path](doc/single_path.png?raw=true "Single Path")
 
 
@@ -94,8 +89,8 @@ Map.world_map = world_map;
 Map.map_width = map_width;
 Map.map_height = map_height;
 // world_map is a std::vector<int>, 0 means no obstacles, 255 means blocked by obstacles
-// solve it
-auto [path_short, steps_used] = find_path(start, end, Map);
+// solve
+auto [path, distance] = find_path(start, end, Map);
 ```
 
 Run `src/main_single_path.cpp`, the path result is shown on the console. Time used is 0.135 ms.

@@ -54,7 +54,7 @@ int main()
     auto start_time = std::chrono::high_resolution_clock::now();
 
 
-    auto [path_all, steps_all] = find_path_all(agent_position, targets_position, Map);
+    auto [path_all, distance_vec] = find_path_all(agent_position, targets_position, Map);
 
 
     auto stop_time = std::chrono::high_resolution_clock::now();
@@ -64,7 +64,7 @@ int main()
 
     for(long unsigned int i=0; i<path_all.size(); i++)
     {
-        std::cout << "This is a path, idx = " << i  << ". Steps used:" << steps_all[i] << std::endl;
+        std::cout << "This is a path, idx = " << i  << ". Distance used:" << distance_vec[i] << std::endl;
         if (path_all[i].size() > 0)
         {
             for (long unsigned int j=0; j<path_all[i].size(); j = j + 2)

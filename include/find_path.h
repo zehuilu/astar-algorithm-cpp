@@ -9,14 +9,15 @@
 #include "stlastar.h"
 #include "MapSearchNode.h"
 #include "MapInfo.h"
+#include "smooth_path.h"
 
 #define DEBUG_LISTS 0
 #define DEBUG_LIST_LENGTHS_ONLY 0
 
 
-inline std::tuple<std::vector<int>, int> find_path(
-    int *start,
-    int *end,
+inline std::tuple<std::vector<int>, float> find_path(
+    const int *start,
+    const int *end,
     const MapInfo &Map)
 {
 
@@ -172,7 +173,15 @@ inline std::tuple<std::vector<int>, int> find_path(
 
     }
 
-    return {path_short, steps};
+    // smooth the path such that the path can go any angle, rather than up/down/left/right
+    std::vector<int> path_output = smooth_path(path_short, Map);
+    float distance = 0.0;
+    for (size_t idx = 0; idx < path_output.size()/2 - 1; idx++) {
+        distance += std::sqrt(std::pow(path_output[2*idx]-path_output[2*(idx+1)], 2) +
+                                std::pow(path_output[2*idx+1]-path_output[2*(idx+1)+1], 2));
+    }
+
+    return {path_output, distance};
 }
 
 

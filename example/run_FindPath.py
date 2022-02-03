@@ -13,14 +13,14 @@ from Simulator import Simulator
 if __name__ == "__main__":
     # define the world
     map_width_meter = 20.0
-    map_height_meter = 30.0
+    map_height_meter = 20.0
     map_resolution = 2
     value_non_obs = 0 # the cell is empty
     value_obs = 255 # the cell is blocked
     # create a simulator
     MySimulator = Simulator(map_width_meter, map_height_meter, map_resolution, value_non_obs, value_obs)
     # number of obstacles
-    num_obs = 100
+    num_obs = 150
     # [width, length] size of each obstacle [meter]
     size_obs = [1, 1]
     # generate random obstacles
@@ -32,26 +32,15 @@ if __name__ == "__main__":
     agent_position, targets_position = MySimulator.generate_agents_and_targets(num_agents=1, num_targets=1)
     # solve it
     t0 = time.time()
-    path_long, path_smooth, steps_used, distance_after_smooth = AStarPython.FindPath_test(agent_position, targets_position, world_map, MySimulator.map_width, MySimulator.map_height)
+    path, distance = AStarPython.FindPath(agent_position, targets_position, world_map, MySimulator.map_width, MySimulator.map_height)
     t1 = time.time()
     print("Time used for a single path is [sec]: ", t1-t0)
-    print("This is the path. " + "Steps used:" + str(steps_used))
-    for idx in range(0,len(path_long),2):
-        str_print = str(path_long[idx]) + ', ' + str(path_long[idx+1])
-        print(str_print)
-
-    print("This is the smooth path.")
-    print("Distance: ", distance_after_smooth)
-    for idx in range(0,len(path_smooth),2):
-        str_print = str(path_smooth[idx]) + ', ' + str(path_smooth[idx+1])
-        print(str_print)
 
     distance = 0.0
-    for idx in range(0, int(round(len(path_smooth)/2)) - 1):
-        distance += math.sqrt((path_smooth[2*idx]-path_smooth[2*idx+2])**2 + (path_smooth[2*idx+1]-path_smooth[2*idx+3])**2)
+    for idx in range(0, int(round(len(path)/2)) - 1):
+        distance += math.sqrt((path[2*idx]-path[2*idx+2])**2 + (path[2*idx+1]-path[2*idx+3])**2)
     print("Distance computed in python: ", distance)
 
     # visualization (uncomment next line if you want to visualize a single path)
-    MySimulator.plot_single_path(path_long)
-    MySimulator.plot_single_path(path_smooth)
+    MySimulator.plot_single_path(path)
     plt.show()

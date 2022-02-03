@@ -45,8 +45,8 @@ if __name__ == "__main__":
     # define the start and goal
     start = [0, 0]
     end = [14, 10]
-    path, steps_used = AStarPython.FindPath(start, end, world_map, map_width, map_height)
-    print("This is the path. " + "Steps used:" + str(steps_used))
+    path, distance = AStarPython.FindPath(start, end, world_map, map_width, map_height)
+    print("This is the path. " + "Distance used:" + str(distance))
     for idx in range(0,len(path),2):
         str_print = str(path[idx]) + ', ' + str(path[idx+1])
         print(str_print)
@@ -54,10 +54,10 @@ if __name__ == "__main__":
     # This is for an agent and a set of targets
     agent_position = [0, 0]
     targets_position = [0,19, 19,19, 19,0]
-    path_many, steps_all = AStarPython.FindPathAll(agent_position, targets_position, world_map, map_width, map_height)
+    path_many, distance_vec = AStarPython.FindPathAll(agent_position, targets_position, world_map, map_width, map_height)
     print("These are all the paths:")
     for i in range(0,len(path_many),1):
-        print("This is a path. " + "Steps used:" + str(steps_all[i]))
+        print("This is a path. " + "Distance used:" + str(distance_vec[i]))
         for j in range(0,len(path_many[i]),2):
             str_print = str(path_many[i][j]) + ', ' + str(path_many[i][j+1])
             print(str_print)
