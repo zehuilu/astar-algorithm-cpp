@@ -8,6 +8,7 @@ The following contents starting from **Summary** have been revised such that the
 Zehui
 
 This repo has been tested with:
+* Clang 15.0.0, CMake 3.27.7, macOS 13.6.6
 * GCC 10.2.0, CMake 3.16.3, Ubuntu 20.04.2 LTS
 * GCC 9.3.0, CMake 3.16.3, Ubuntu 20.04.1 LTS
 * Clang 13.0.0, CMake 3.22.1, macOS 11.4
@@ -23,17 +24,34 @@ For Python:
 
 Build
 =====
-```
+```bash
 $ sudo apt install gcc g++ cmake
 $ sudo apt install python3-pybind11 # For macOS: brew install pybind11
 $ pip3 install numpy matplotlib
+
 $ git clone https://github.com/zehuilu/astar-algorithm-cpp.git
 $ cd <MAIN_DIRECTORY>
-$ mkdir build
 $ cd build
-$ cmake ..
+$ cmake ..  # For debug mode, run: cmake .. -DCMAKE_BUILD_TYPE=Debug
 $ make
 ```
+
+If you want to use [conda](https://docs.conda.io/projects/conda/en/latest/index.html) to manage environment:
+```bash
+$ conda create --name astar python numpy matplotlib
+$ conda activate astar
+$ conda install conda-forge::pybind11
+
+$ git clone https://github.com/zehuilu/astar-algorithm-cpp.git
+$ cd <MAIN_DIRECTORY>
+$ cd build
+$ cmake ..  # For debug mode, run: cmake .. -DCMAKE_BUILD_TYPE=Debug
+$ make
+```
+
+Note: If you are using conda, make sure you are in the right env `astar` before you use cmake and make to compile.
+Otherwise, conda will link to the Python associated with the base environment or other environments, which are wrong.
+
 
 
 Usage
@@ -50,6 +68,14 @@ For Python, the usage is shown in `example/run_PathFind.py`.
 $ cd <MAIN_DIRECTORY>
 $ python3 example/run_PathFind.py
 ```
+
+For Python, to run `AStarPython.FindPathAll()` with multi-threading, see `example/run_FindPathAllMP.py`.
+The function `AStarPython.FindPathAllMP()` is used in line 36, and the usage is the same as `AStarPython.FindPathAll()`.
+```
+$ cd <MAIN_DIRECTORY>
+$ python3 example/run_FindPathAllMP.py
+```
+
 
 
 Example

@@ -14,6 +14,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Enable OpenMP
+find_package(OpenMP REQUIRED)
+
 # For python binding
 find_package(pybind11 REQUIRED)
 
@@ -24,6 +27,13 @@ include_directories(
 # find all the header files
 file(GLOB HEADER_FILES include/*.h)
 
+# =============== Sanitizer flags (Debug only) ===============
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "ThreadSanitizer enabled")
+    add_compile_options(-fsanitize=thread)
+    add_link_options(-fsanitize=thread)
+endif()
+# ============================================================
 
 # add the main file as executable
 # test files
@@ -35,3 +45,4 @@ add_executable(main_many src/main_many_path.cpp ${HEADER_FILES})
 
 # Build c++ library such that python can call it
 pybind11_add_module(AStarPython src/AStarPython.cpp)
+target_link_libraries(AStarPython PRIVATE OpenMP::OpenMP_CXX)
