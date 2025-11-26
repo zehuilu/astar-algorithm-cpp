@@ -67,16 +67,16 @@ class Simulator(object):
         """
         agents = list()
         for _ in range(num_agents):
-            start = [randint(1, self.map_width-1), randint(1, self.map_width-1)]
+            start = [randint(1, self.map_width-1), randint(1, self.map_height-1)]
             while self.map_array[start[1]][start[0]] != self.value_non_obs:
-                start = [randint(1, self.map_width-1), randint(1, self.map_width-1)]
+                start = [randint(1, self.map_width-1), randint(1, self.map_height-1)]
             agents.extend(start)
         
         targets = list()
         for _ in range(num_targets):
-            goal = [randint(1, self.map_width-1), randint(1, self.map_width-1)]
+            goal = [randint(1, self.map_width-1), randint(1, self.map_height-1)]
             while (self.map_array[goal[1]][goal[0]] != self.value_non_obs) or (self.check_target_collide_agents(goal, agents)):
-                goal = [randint(1, self.map_width-1), randint(1, self.map_width-1)]
+                goal = [randint(1, self.map_width-1), randint(1, self.map_height-1)]
             targets.extend(goal)
 
         return agents, targets

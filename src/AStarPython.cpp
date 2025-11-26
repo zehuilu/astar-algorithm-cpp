@@ -14,6 +14,8 @@
 #include <chrono>
 #include "ThreadPool.h"
 #include <future>
+#include <tbb/parallel_for.h>
+#include <tbb/task_arena.h>
 
 
 /*
@@ -76,6 +78,86 @@ inline std::tuple<std::vector<std::vector<int>>, std::vector<float>> FindPathOne
 
     // if targets_position is empty, return empty arrays
     return {path_many, distances_many};
+}
+
+
+/*
+FindPathAllTBB: The Intel TBB version of FindPathAll: Find all the collision-free paths from every element to another element in start+targets.
+
+targets_position potentially contains a large number of targets.
+
+Input:
+    agent_position: 1D integer vector [x, y] for the agent position
+    targets_position: 1D integer vector [x0,y0, x1,y1, x2,y2, ...] for the targets positions
+    world_map: 1D integer vector for the map, flattened by a 2D vector map; 0 for no obstacles, 255 for obstacles
+    mapSizeX: integer for the width of the map
+    mapSizeY: integer for the height of the map
+
+Output:
+    path: 2D integer vector for all the index paths, [[idx_x_0,idx_y_0, idx_x_1,idx_y_1, ...], [idx_x_0,idx_y_0, idx_x_1,idx_y_1, ...], ...]
+    distance: 1D float vector for all the distances of the paths
+*/
+inline std::tuple<std::vector<std::vector<int>>, std::vector<float>> FindPathAllTBB(
+    const std::vector<int> agent_position,
+    const std::vector<int> targets_position,
+    const std::vector<int> &world_map,
+    int &map_width,
+    int &map_height)
+{
+    // release GIL for true parallelism
+    pybind11::gil_scoped_release release;
+
+    struct MapInfo Map;
+    Map.world_map = world_map;
+    Map.map_width = map_width;
+    Map.map_height = map_height;
+
+    int num_targets = targets_position.size()/2;
+    std::vector<int> start_goal_pair = get_combination(num_targets+1, 2);
+    size_t n_pairs = start_goal_pair.size() / 2;
+    std::vector<std::vector<int>> path_all(n_pairs);
+    std::vector<float> distance_all(n_pairs);
+
+
+    // TBB arena: use all cores
+    tbb::task_arena arena(tbb::task_arena::automatic);
+
+    // std::cout << "num_threads (tbb::task_arena::automatic): " << arena.max_concurrency() << std::endl;
+
+    // parallelly executed
+    arena.execute([&] {
+        tbb::parallel_for(size_t(0), n_pairs, [&](size_t k) {
+            size_t idx = 2 * k;
+            int start_idx = start_goal_pair[idx];
+            int goal_idx  = start_goal_pair[idx + 1];
+
+            int start[2], goal[2];
+
+            if (start_idx != 0) {
+                start[0] = targets_position[2 * (start_idx - 1)];
+                start[1] = targets_position[2 * (start_idx - 1) + 1];
+            } else {
+                start[0] = agent_position[0];
+                start[1] = agent_position[1];
+            }
+
+            if (goal_idx != 0) {
+                goal[0] = targets_position[2 * (goal_idx - 1)];
+                goal[1] = targets_position[2 * (goal_idx - 1) + 1];
+            } else {
+                goal[0] = agent_position[0];
+                goal[1] = agent_position[1];
+            }
+
+            auto [path_this, distance] = find_path(start, goal, Map);
+
+            // each parallel task writes into its own index
+            path_all[k] = std::move(path_this);
+            distance_all[k] = distance;
+        });
+    });
+
+    return {path_all, distance_all};
 }
 
 
@@ -508,6 +590,7 @@ inline PYBIND11_MODULE(AStarPython, module) {
     module.def("FindPathAll", &FindPathAll, "Find all the collision-free paths between every two nodes");
     module.def("FindPathAllMP", &FindPathAllMP, "openMP version: Find all the collision-free paths between every two nodes");
     module.def("FindPathAllMT", &FindPathAllMT, "Multi-threading version: Find all the collision-free paths between every two nodes");
+    module.def("FindPathAllTBB", &FindPathAllTBB, "Intel TBB version: Find all the collision-free paths between every two nodes");
     module.def("FindPathOneByOne", &FindPathOneByOne, "Find all the collision-free paths consecutively");
 
     module.def("FindPath_test", &FindPath_test, "Find a collision-free path (TEST VERSION)");

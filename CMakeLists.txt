@@ -14,6 +14,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# enable TBB (oneTBB) 
+# Homebrew installs TBB here: /opt/homebrew/opt/tbb
+# Intel oneAPI installs TBB in its toolchain
+find_package(TBB REQUIRED COMPONENTS tbb)
+
 # Enable OpenMP
 find_package(OpenMP REQUIRED)
 
@@ -45,4 +50,4 @@ add_executable(main_many src/main_many_path.cpp ${HEADER_FILES})
 
 # Build c++ library such that python can call it
 pybind11_add_module(AStarPython src/AStarPython.cpp)
-target_link_libraries(AStarPython PRIVATE OpenMP::OpenMP_CXX)
+target_link_libraries(AStarPython PRIVATE OpenMP::OpenMP_CXX TBB::tbb)

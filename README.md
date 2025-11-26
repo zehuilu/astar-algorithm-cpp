@@ -8,9 +8,10 @@ The following contents starting from **Summary** have been revised such that the
 Zehui
 
 This repo has been tested with:
-* Clang 15.0.0, CMake 3.27.7, macOS 13.6.6
+* GCC 13.3.0, CMake 3.28.3, Ubuntu 24.04.3 LTS
 * GCC 10.2.0, CMake 3.16.3, Ubuntu 20.04.2 LTS
 * GCC 9.3.0, CMake 3.16.3, Ubuntu 20.04.1 LTS
+* Clang 15.0.0, CMake 3.27.7, macOS 13.6.6
 * Clang 13.0.0, CMake 3.22.1, macOS 11.4
 * Clang 12.0.0, CMake 3.18.3, macOS 10.15.7
 
@@ -25,7 +26,7 @@ For Python:
 Build
 =====
 ```bash
-$ sudo apt install gcc g++ cmake
+$ sudo apt install gcc g++ cmake libtbb-dev # For macOS: brew install tbb
 $ sudo apt install python3-pybind11 # For macOS: brew install pybind11
 $ pip3 install numpy matplotlib
 
