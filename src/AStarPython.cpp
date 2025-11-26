@@ -116,8 +116,19 @@ inline std::tuple<std::vector<std::vector<int>>, std::vector<float>> FindPathAll
     std::vector<std::vector<int>> path_all(n_pairs);
     std::vector<float> distance_all(n_pairs);
 
+
     // choose number of threads
-    size_t num_threads = std::thread::hardware_concurrency();
+    // NOTE: for Intel CPUs, e.g., Intel® Core™ i7-13700
+    // there are 8 Performance-cores and 8 Efficient-cores.
+    // So the total number of threads is 2*8 + 8 = 24, which is
+    // what std::thread::hardware_concurrency() returns.
+    // But I found out that when n_pairs is large, on the order of 2k+,
+    // only using performance threads is faster.
+    // That means we may need to manually set num_threads as 2*8 = 16.
+
+    // size_t num_threads = std::thread::hardware_concurrency();
+    size_t num_threads = 16;
+    // std::cout << "num_threads: " << num_threads << std::endl;
     if (num_threads == 0) num_threads = 4;
 
     ThreadPool pool(num_threads);
