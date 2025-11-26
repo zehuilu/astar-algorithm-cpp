@@ -119,8 +119,17 @@ inline std::tuple<std::vector<std::vector<int>>, std::vector<float>> FindPathAll
     std::vector<float> distance_all(n_pairs);
 
 
+    // NOTE: for Intel CPUs, e.g., Intel® Core™ i7-13700
+    // there are 8 Performance-cores and 8 Efficient-cores.
+    // So the total number of threads is 2*8 + 8 = 24, which is
+    // what arena(tbb::task_arena::automatic) does. (using arena.max_concurrency() = 24)
+    // But I found out that when n_pairs is large, on the order of 5k+,
+    // only using performance threads is faster.
+    // That means we may need to manually set num_threads as 2*8 = 16.
+
     // TBB arena: use all cores
-    tbb::task_arena arena(tbb::task_arena::automatic);
+    // tbb::task_arena arena(tbb::task_arena::automatic);
+    tbb::task_arena arena(16);
 
     // std::cout << "num_threads (tbb::task_arena::automatic): " << arena.max_concurrency() << std::endl;
 
@@ -204,7 +213,7 @@ inline std::tuple<std::vector<std::vector<int>>, std::vector<float>> FindPathAll
     // there are 8 Performance-cores and 8 Efficient-cores.
     // So the total number of threads is 2*8 + 8 = 24, which is
     // what std::thread::hardware_concurrency() returns.
-    // But I found out that when n_pairs is large, on the order of 2k+,
+    // But I found out that when n_pairs is large, on the order of 5k+,
     // only using performance threads is faster.
     // That means we may need to manually set num_threads as 2*8 = 16.
 
