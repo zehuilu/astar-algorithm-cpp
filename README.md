@@ -69,7 +69,7 @@ $ cd <MAIN_DIRECTORY>
 $ python3 example/run_PathFind.py
 ```
 
-For Python, to run `AStarPython.FindPathAll()` with multi-threading, see `example/run_FindPathAllMP.py`.
+For Python, to run `AStarPython.FindPathAll()` with openMP (multi-threading), see `example/run_FindPathAllMP.py`.
 The function `AStarPython.FindPathAllMP()` is used in line 36, and the usage is the same as `AStarPython.FindPathAll()`.
 ```
 $ cd <MAIN_DIRECTORY>
